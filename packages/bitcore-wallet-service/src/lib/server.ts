@@ -1906,7 +1906,6 @@ export class WalletService {
    */
   getFeeLevels(opts, cb) {
     opts = opts || {};
-
     opts.coin = opts.coin || Defaults.COIN;
     if (!Utils.checkValueInCollection(opts.coin, Constants.COINS))
       return cb(new ClientError('Invalid coin'));

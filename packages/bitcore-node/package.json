@@ -85,6 +85,8 @@
     "bitcore-p2p-cash": "^8.14.4",
     "bitcore-wallet-client": "^8.14.4",
     "body-parser": "1.18.3",
+    "@bitrupee/rapids-lib": "^8.14.5",
+    "@bitrupee/rapids-p2p": "^8.14.4",
     "cors": "2.8.4",
     "crypto-wallet-core": "^8.14.4",
     "heapdump": "0.3.12",

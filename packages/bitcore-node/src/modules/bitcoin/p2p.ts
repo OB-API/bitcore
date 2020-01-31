@@ -92,6 +92,8 @@ export class BitcoinP2PWorker extends BaseP2PWorker<IBtcBlock> {
       );
     });
 
+
+
     this.pool.on('peertx', async (peer, message) => {
       const hash = message.transaction.hash;
       logger.debug('peer tx received', {
@@ -270,7 +272,7 @@ export class BitcoinP2PWorker extends BaseP2PWorker<IBtcBlock> {
     };
 
     let headers = await getHeaders();
-    while (headers.length > 0) {
+    while (headers.length > 0 ) {
       tip = await ChainStateProvider.getLocalTip({ chain, network });
       let currentHeight = tip ? tip.height : 0;
       const startingHeight = currentHeight;

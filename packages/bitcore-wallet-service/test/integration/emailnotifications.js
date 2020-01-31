@@ -34,7 +34,7 @@ describe('Email notifications', function() {
       done();
     });
   });
- 
+
   describe('Shared wallet', function() {
     beforeEach(function(done) {
         helpers.createAndJoinWallet(2, 3, function(s, w) {
