@@ -42,7 +42,8 @@
     "buffer-compare": "=1.1.1",
     "elliptic": "=6.4.0",
     "inherits": "=2.0.1",
-    "lodash": "=4.17.15"
+    "lodash": "=4.17.15",
+    "multi-hashing-plus": "1.0.0"
   },
   "devDependencies": {
     "bitcore-build": "^8.14.4",

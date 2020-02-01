@@ -23,7 +23,11 @@ describe('Peer', function() {
 
   describe('Integration test', function() {
     it('parses this stream of data from a connection', function(callback) {
-      var peer = new Peer('');
+      var options = {
+        host: '127.0.0.1',
+        port: 20008
+      };
+      var peer = new Peer(options);
       var stub = sinon.stub();
       var dataCallback;
       var connectCallback;
@@ -68,12 +72,15 @@ describe('Peer', function() {
       peer.on('addr', check);
       peer.on('inv', check);
       peer.connect();
-    });
+      });
   });
 
   it('create instance', function() {
-    var peer = new Peer('localhost');
-    peer.host.should.equal('localhost');
+    var options = {
+      host: '127.0.0.1'
+    };
+    var peer = new Peer(options);
+    peer.host.should.equal('127.0.0.1');
     peer.network.should.equal(Networks.livenet);
     peer.port.should.equal(Networks.livenet.port);
   });

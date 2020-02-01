@@ -3,6 +3,7 @@
 var crypto = require('crypto');
 var BufferUtil = require('../util/buffer');
 var $ = require('../util/preconditions');
+var rapids = require('multi-hashing-plus');
 
 var Hash = module.exports;
 
@@ -24,6 +25,11 @@ Hash.sha256sha256 = function(buf) {
   $.checkArgument(BufferUtil.isBuffer(buf));
   return Hash.sha256(Hash.sha256(buf));
 };
+
+Hash.quark = function(buf){
+  $.checkArgument(BufferUtil.isBuffer(buf));
+  return new Buffer(rapids['quark'](buf));
+}
 
 Hash.ripemd160 = function(buf) {
   $.checkArgument(BufferUtil.isBuffer(buf));

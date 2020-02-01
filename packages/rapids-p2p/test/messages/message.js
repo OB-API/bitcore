@@ -11,13 +11,13 @@ describe('Message', function() {
     it('construct with magic number and command', function() {
       var message = new Message({
         network: {
-          networkMagic: 0xd9b4bef9
+          networkMagic: 0x61a2f5cb
         },
         command: 'command'
       });
       should.exist(message);
       message.command.should.equal('command');
-      message.network.networkMagic.should.equal(0xd9b4bef9);
+      message.network.networkMagic.should.equal(0x61a2f5cb);
     });
   });
 
@@ -31,7 +31,7 @@ describe('Message', function() {
         return new Buffer(0);
       };
       var buffer = message.toBuffer();
-      var expectedBuffer = new Buffer('f9beb4d9636f6d6d616e640000000000000000005df6e0e2', 'hex');
+      var expectedBuffer = new Buffer('61a2f5cb636f6d6d616e640000000000000000005df6e0e2', 'hex');
       buffer.should.deep.equal(expectedBuffer);
     });
   });

@@ -139,18 +139,18 @@ function removeNetwork(network) {
 addNetwork({
   name: 'livenet',
   alias: 'mainnet',
-  pubkeyhash: 0x3d,
-  privatekey: 0x2e,
-  scripthash: 0x05,
-  xpubkey: 0x0488b21e,
-  xprivkey: 0x0488ade4,
-  networkMagic: 0x61a2f5cb,
-  port: 28732,
+  pubkeyhash: 0x1E, //0x4c,
+  privatekey: 0xD4,//0xcc,
+  scripthash: 0xD,//0x10,
+  xpubkey: 0x022D2533,//0x488b21e,    // 'xpub' (Bitcoin Default)
+  xprivkey: 0x0221312B,  //0x488ade4,   // 'xprv' (Bitcoin Default)
+  networkMagic: 0x90c4fde9,  //0xbf0c6bbd,
+  port: 51472,//9999,
   dnsSeeds: [
-    '68.183.236.217',
-    '159.65.189.155',
-    '209.97.188.183',
-    '104.248.169.67'
+    'pivx.seed.fuzzbawls.pw',//'dnsseed.darkcoin.io',
+    'pivx.seed2.fuzzbawls.pw',//'dnsseed.dashdot.io',
+    'coin-server.com',//'dnsseed.masternode.io',
+    's3v3nh4cks.ddns.net'//'dnsseed.dashpay.io'
   ]
 });
 
@@ -160,25 +160,23 @@ addNetwork({
  */
 var livenet = get('livenet');
 
+
 addNetwork({
   name: 'testnet',
   alias: 'test',
-  pubkeyhash: 0x6f,
-  privatekey: 0xef,
-  scripthash: 0xc4,
-  bech32prefix: 'tb',
-  xpubkey: 0x043587cf,
-  xprivkey: 0x04358394,
-  networkMagic: 0x0b110907,
-  port: 18333,
+  pubkeyhash: 0x8B,//0x8c,
+  privatekey: 0xEF,//0xef,
+  scripthash: 0x13,
+  xpubkey: 0x3a8061a0,//0x43587cf,     // 'tpub' (Bitcoin Default)
+  xprivkey: 0x3a805837,//0x04358394    // 'tprv' (Bitcoin Default)
+  networkMagic:0x457665ba,
+  port: 51474,
   dnsSeeds: [
-    'testnet-seed.bitcoin.petertodd.org',
-    'testnet-seed.bluematt.me',
-    'testnet-seed.alexykot.me',
-    'testnet-seed.bitcoin.schildbach.de'
+    'pivx-testnet.seed.fuzzbawls.pw',
+    'pivx-testnet.seed2.fuzzbawls.pw',
+    'testnet.dnsseed.pivx.warrows.dev'
   ]
 });
-
 /**
  * @instance
  * @member Networks#testnet
@@ -194,8 +192,8 @@ addNetwork({
   bech32prefix: 'bcrt',
   xpubkey: 0x043587cf,
   xprivkey: 0x04358394,
-  networkMagic: 0xfabfb5da,
-  port: 18444,
+  networkMagic: 0xa1cf7eac,
+  port: 51476,
   dnsSeeds: []
 });
 

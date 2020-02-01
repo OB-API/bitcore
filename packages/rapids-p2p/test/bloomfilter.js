@@ -36,14 +36,14 @@ describe('BloomFilter', function() {
 
   it('serialize filter with public keys added', function() {
 
-    var privateKey = bitcore.PrivateKey.fromWIF('5Kg1gnAjaLfKiwhhPpGS3QfRg2m6awQvaj98JCZBZQ5SuS2F15C');
+    var privateKey = bitcore.PrivateKey.fromWIF('7rDViSUzyAAw5ZWjpzasohNfqv3Ncrsr3fdvb1eyi5XoF6UFJuAM');
     var publicKey = privateKey.toPublicKey();
 
     var filter = BloomFilter.create(2, 0.001, 0, BloomFilter.BLOOM_UPDATE_ALL);
     filter.insert(publicKey.toBuffer());
     filter.insert(bitcore.crypto.Hash.sha256ripemd160(publicKey.toBuffer()));
 
-    var expectedFilter = BloomFilter.fromBuffer(ParseHex('038fc16b080000000000000001'));
+    var expectedFilter = BloomFilter.fromBuffer(ParseHex('03895b20080000000000000001'));
 
     filter.toBuffer().should.deep.equal(expectedFilter.toBuffer());
 

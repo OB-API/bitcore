@@ -8,7 +8,7 @@ function findConfig(): ConfigType | undefined {
   let foundConfig;
   const envConfigPath = process.env.BITCORE_CONFIG_PATH;
   const argConfigPath = program.config;
-  const configFileName = 'bitcore.config.json';
+  const configFileName = 'bitcore.config-test.json';
   let bitcoreConfigPaths = [
     `${homedir()}/${configFileName}`,
     `../../../../${configFileName}`,
