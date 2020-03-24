@@ -476,6 +476,7 @@ export class WalletService {
    * @param {string} opts.network[='livenet'] - The Bitcoin network for this wallet.
    * @param {string} opts.account[=0] - BIP44 account number
    * @param {string} opts.usePurpose48 - for Multisig wallet, use purpose=48
+   * @param {string} opts.useNativeSegwit - for Segwit address, set addressType to P2WPKH or P2WSH
    */
   createWallet(opts, cb) {
     let pubKey;
@@ -517,7 +518,11 @@ export class WalletService {
     }
 
     const derivationStrategy = Constants.DERIVATION_STRATEGIES.BIP44;
-    const addressType = opts.n === 1 ? Constants.SCRIPT_TYPES.P2PKH : Constants.SCRIPT_TYPES.P2SH;
+    let addressType = opts.n === 1 ? Constants.SCRIPT_TYPES.P2PKH : Constants.SCRIPT_TYPES.P2SH;
+
+    if (opts.useNativeSegwit) {
+      addressType = opts.n === 1 ? Constants.SCRIPT_TYPES.P2WPKH : Constants.SCRIPT_TYPES.P2WSH;
+    }
 
     try {
       pubKey = new Bitcore.PublicKey.fromString(opts.pubKey);
@@ -4041,6 +4046,23 @@ export class WalletService {
     this.fiatRateService.getRate(opts, (err, rate) => {
       if (err) return cb(err);
       return cb(null, rate);
+    });
+  }
+
+  /**
+   * Returns historical exchange rates for the specified currency & timestamp range.
+   * @param {Object} opts
+   * @param {string} opts.code - Currency ISO code.
+   * @param {Date} opts.ts - The oldest timestamp in the range to Date.now().
+   * @param {String} [opts.provider] - A provider of exchange rates (default 'BitPay').
+   * @returns {Object} rates - The exchange rate.
+   */
+  getHistoricalRates(opts, cb) {
+    if (!checkRequired(opts, ['code'], cb)) return;
+
+    this.fiatRateService.getHistoricalRates(opts, (err, rates) => {
+      if (err) return cb(err);
+      return cb(null, rates);
     });
   }
 
