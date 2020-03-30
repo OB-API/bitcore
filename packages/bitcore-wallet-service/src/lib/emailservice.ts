@@ -10,6 +10,9 @@ import { MessageBroker } from './messagebroker';
 import { Email } from './model';
 import { Storage } from './storage';
 
+const  sgMail =  require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 export interface Recipient {
   copayerId: string;
   emailAddress: string;
@@ -75,7 +78,7 @@ export class EmailService {
   storage: Storage;
   messageBroker: MessageBroker;
   lock: Lock;
-  mailer: any;
+  mailer: typeof sgMail;
   //  mailer: nodemailer.Transporter;
 
   start(opts, cb) {

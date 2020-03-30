@@ -1,7 +1,7 @@
 {
-  "name": "bitcore-wallet-service",
+  "name": "@bitrupee/bitcore-wallet-service",
   "description": "A service for Mutisig HD Bitcoin Wallets",
-  "author": "BitPay Inc",
+  "author": "BitPay Inc, Muellners Inc",
   "version": "8.18.0",
   "license": "MIT",
   "main": "ts_build/index.js",
@@ -28,7 +28,7 @@
     "bitcore-lib-cash": "^8.18.0",
     "body-parser": "^1.11.0",
     "compression": "^1.6.2",
-    "crypto-wallet-core": "^8.18.0",
+    "@bitrupee/crypto-wallet-core": "8.18.0",
     "email-validator": "^1.0.1",
     "express": "^4.10.0",
     "express-rate-limit": "^2.6.0",
@@ -113,6 +113,10 @@
     {
       "name": "Matias Alejo Garcia",
       "email": "ematiu@gmail.com"
+    },
+    {
+      "name": "Saransh Sharma",
+      "email": "saransh@muellners.com"
     }
   ],
   "gitHead": "012cc0216a9bc6b195035855bd17149bad41acd1"

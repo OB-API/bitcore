@@ -1,4 +1,4 @@
-import * as CWC from 'crypto-wallet-core';
+import * as CWC from '@bitrupee/crypto-wallet-core';
 import _ from 'lodash';
 
 const $ = require('preconditions').singleton();

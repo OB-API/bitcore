@@ -155,6 +155,22 @@ export class FiatRateService {
     );
   }
 
+  getRateForToken(opts, cb) {
+    this.request.get(
+      {
+        url: 'https://api.coingecko.com/api/v3/simple/price?ids=' + opts.coin + '&vs_currencies=' + opts.code,
+        json: true
+      },
+      (err, res, body) => {
+        if (err || !body) {
+          return cb(err);
+        }
+        body.ts = Date.now();
+        return cb(body);
+      }
+    );
+  }
+
   getHistoricalRates(opts, cb) {
     $.shouldBeFunction(cb);
 
