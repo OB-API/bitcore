@@ -353,7 +353,8 @@ export class PushNotificationsService {
       usdc: 'USDC',
       pax: 'PAX',
       gusd: 'GUSD',
-      busd: 'BUSD'
+      busd: 'BUSD',
+      dai: 'DAI'
     };
     const data = _.cloneDeep(notification.data);
     data.subjectPrefix = _.trim(this.subjectPrefix + ' ');
@@ -481,9 +482,9 @@ export class PushNotificationsService {
     );
     jwtClient.authorize(function(err, tokens) {
       if (err) {
-        cb(err);
+        return cb(err);
       }
-      cb(tokens.access_token);
+      return cb(tokens.access_token);
     });
   }
 }

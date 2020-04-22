@@ -1,4 +1,4 @@
-import { exchangeABI } from 'transactions/erc20/uniswap';
+import { exchangeABI } from './uniswap';
 import Web3 from 'web3';
 import { ETHTxProvider } from '../eth';
 
