@@ -10,7 +10,7 @@ import { MessageBroker } from './messagebroker';
 import { Email } from './model';
 import { Storage } from './storage';
 
-const  sgMail =  require('@sendgrid/mail');
+const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export interface Recipient {

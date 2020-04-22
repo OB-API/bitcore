@@ -1,9 +1,8 @@
-import {exchangeABI} from 'transactions/erc20/uniswap';
+import { exchangeABI } from 'transactions/erc20/uniswap';
 import Web3 from 'web3';
 import { ETHTxProvider } from '../eth';
 
 export class ExchangeTxProvider extends ETHTxProvider {
-
   getUniSwapExchange(tokenContractAddress) {
     const web3 = new Web3();
     const contract = new web3.eth.Contract(exchangeABI, tokenContractAddress);
@@ -33,5 +32,4 @@ export class ExchangeTxProvider extends ETHTxProvider {
       .encodeABI();
     return data;
   }
-
 }

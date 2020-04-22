@@ -4110,7 +4110,6 @@ export class WalletService {
     });
   }
 
-
   /**
    * Returns historical exchange rates for the specified currency & timestamp range.
    * @param {Object} opts
