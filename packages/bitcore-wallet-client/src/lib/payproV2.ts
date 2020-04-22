@@ -12,27 +12,27 @@ const sha256 = Bitcore.crypto.Hash.sha256;
 const BN = Bitcore.crypto.BN;
 var Bitcore_ = {
   btc: Bitcore,
-  bch: require('crypto-wallet-core').BitcoreLibCash
+  bch: require('crypto-wallet-core').BitcoreLibCash,
 };
 var MAX_FEE_PER_KB = {
   btc: 10000 * 1000, // 10k sat/b
   bch: 10000 * 1000, // 10k sat/b
   eth: 50000000000, // 50 Gwei
-  xrp: 50000000000
+  xrp: 50000000000,
 };
 
 // PayPro Network Map
 export enum NetworkMap {
   main = 'livenet',
   test = 'testnet',
-  regtest = 'testnet'
+  regtest = 'testnet',
 }
 
 export class PayProV2 {
   static options: { headers?: any; args?: string; agent?: boolean } = {
     headers: {},
     args: '',
-    agent: false
+    agent: false,
   };
   static request = superagent;
   static trustedKeys = dfltTrustedKeys;
@@ -92,7 +92,7 @@ export class PayProV2 {
         }
         return resolve({
           rawBody: res.text,
-          headers: res.headers
+          headers: res.headers,
         });
       });
     });
@@ -156,8 +156,8 @@ export class PayProV2 {
         Accept: 'application/payment-options',
         'x-paypro-version': 2,
         Connection: 'Keep-Alive',
-        'Keep-Alive': 'timeout=30, max=10'
-      }
+        'Keep-Alive': 'timeout=30, max=10',
+      },
     });
 
     return await this.verifyResponse(paymentUrl, rawBody, headers, unsafeBypassValidation);
@@ -179,12 +179,12 @@ export class PayProV2 {
         'Content-Type': 'application/payment-request',
         'x-paypro-version': 2,
         Connection: 'Keep-Alive',
-        'Keep-Alive': 'timeout=30, max=10'
+        'Keep-Alive': 'timeout=30, max=10',
       },
       args: JSON.stringify({
         chain,
-        currency
-      })
+        currency,
+      }),
     });
 
     return await PayProV2.verifyResponse(paymentUrl, rawBody, headers, unsafeBypassValidation);
@@ -205,7 +205,7 @@ export class PayProV2 {
     chain,
     currency,
     unsignedTransactions,
-    unsafeBypassValidation = false
+    unsafeBypassValidation = false,
   }) {
     let { rawBody, headers } = await PayProV2._asyncRequest({
       url: paymentUrl,
@@ -214,13 +214,13 @@ export class PayProV2 {
         'Content-Type': 'application/payment-verification',
         'x-paypro-version': 2,
         Connection: 'Keep-Alive',
-        'Keep-Alive': 'timeout=30, max=10'
+        'Keep-Alive': 'timeout=30, max=10',
       },
       args: JSON.stringify({
         chain,
         currency,
-        transactions: unsignedTransactions
-      })
+        transactions: unsignedTransactions,
+      }),
     });
 
     return await this.verifyResponse(paymentUrl, rawBody, headers, unsafeBypassValidation);
@@ -242,7 +242,7 @@ export class PayProV2 {
     currency,
     signedTransactions,
     unsafeBypassValidation = false,
-    bpPartner
+    bpPartner,
   }) {
     let { rawBody, headers } = await this._asyncRequest({
       url: paymentUrl,
@@ -253,13 +253,13 @@ export class PayProV2 {
         BP_PARTNER: bpPartner.bp_partner,
         BP_PARTNER_VERSION: bpPartner.bp_partner_version,
         Connection: 'Keep-Alive',
-        'Keep-Alive': 'timeout=30, max=10'
+        'Keep-Alive': 'timeout=30, max=10',
       },
       args: JSON.stringify({
         chain,
         currency,
-        transactions: signedTransactions
-      })
+        transactions: signedTransactions,
+      }),
     });
 
     return await this.verifyResponse(paymentUrl, rawBody, headers, unsafeBypassValidation);
@@ -378,7 +378,7 @@ export class PayProV2 {
   static processResponse(responseData) {
     let payProDetails: any = {
       payProUrl: responseData.paymentUrl,
-      memo: responseData.memo
+      memo: responseData.memo,
     };
 
     // otherwise, it returns err.
@@ -387,7 +387,7 @@ export class PayProV2 {
     // getPaymentOptions
     if (responseData.paymentOptions) {
       payProDetails.paymentOptions = responseData.paymentOptions;
-      payProDetails.paymentOptions.forEach(option => {
+      payProDetails.paymentOptions.forEach((option) => {
         option.network = NetworkMap[option.network];
       });
     }
@@ -411,7 +411,7 @@ export class PayProV2 {
 
     if (responseData.instructions) {
       payProDetails.instructions = responseData.instructions;
-      payProDetails.instructions.forEach(output => {
+      payProDetails.instructions.forEach((output) => {
         output.toAddress = output.to || output.outputs[0].address;
         output.amount = output.value !== undefined ? output.value : output.outputs[0].amount;
       });

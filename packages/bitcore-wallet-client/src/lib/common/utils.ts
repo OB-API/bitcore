@@ -15,7 +15,7 @@ var Bitcore_ = {
   btc: Bitcore,
   bch: BitcoreLibCash,
   eth: Bitcore,
-  xrp: Bitcore
+  xrp: Bitcore,
 };
 var PrivateKey = Bitcore.PrivateKey;
 var PublicKey = Bitcore.PublicKey;
@@ -40,7 +40,7 @@ export class Utils {
       _.defaults(
         {
           ks: 128,
-          iter: 1
+          iter: 1,
         },
         SJCL
       )
@@ -123,9 +123,7 @@ export class Utils {
     $.checkArgument(privKey && _.isString(privKey));
     $.checkArgument(Bitcore.PrivateKey.isValid(privKey), 'The private key received is invalid');
     var pk = Bitcore.PrivateKey.fromString(privKey);
-    return Bitcore.crypto.Hash.sha256(pk.toBuffer())
-      .slice(0, 16)
-      .toString('base64');
+    return Bitcore.crypto.Hash.sha256(pk.toBuffer()).slice(0, 16).toString('base64');
   }
 
   static getCopayerHash(name, xPubKey, requestPubKey) {
@@ -158,7 +156,7 @@ export class Utils {
     coin = coin || 'btc';
     const chain = this.getChain(coin).toLowerCase();
     var bitcore = Bitcore_[chain];
-    var publicKeys = _.map(publicKeyRing, item => {
+    var publicKeys = _.map(publicKeyRing, (item) => {
       var xpub = new bitcore.HDPublicKey(item.xPubKey);
       return xpub.deriveChild(path).publicKey;
     });
@@ -190,7 +188,7 @@ export class Utils {
     return {
       address: bitcoreAddress.toString(true),
       path,
-      publicKeys: _.invokeMap(publicKeys, 'toString')
+      publicKeys: _.invokeMap(publicKeys, 'toString'),
     };
   }
 
@@ -278,7 +276,7 @@ export class Utils {
       switch (txp.addressType) {
         case Constants.SCRIPT_TYPES.P2WSH:
         case Constants.SCRIPT_TYPES.P2SH:
-          _.each(txp.inputs, i => {
+          _.each(txp.inputs, (i) => {
             t.from(i, i.publicKeys, txp.requiredSignatures);
           });
           break;
@@ -291,13 +289,13 @@ export class Utils {
       if (txp.toAddress && txp.amount && !txp.outputs) {
         t.to(txp.toAddress, txp.amount);
       } else if (txp.outputs) {
-        _.each(txp.outputs, o => {
+        _.each(txp.outputs, (o) => {
           $.checkState(o.script || o.toAddress, 'Output should have either toAddress or script specified');
           if (o.script) {
             t.addOutput(
               new bitcore.Transaction.Output({
                 script: o.script,
-                satoshis: o.amount
+                satoshis: o.amount,
               })
             );
           } else {
@@ -311,12 +309,12 @@ export class Utils {
 
       // Shuffle outputs for improved privacy
       if (t.outputs.length > 1) {
-        var outputOrder = _.reject(txp.outputOrder, order => {
+        var outputOrder = _.reject(txp.outputOrder, (order) => {
           return order >= t.outputs.length;
         });
         $.checkState(t.outputs.length == outputOrder.length);
-        t.sortOutputs(outputs => {
-          return _.map(outputOrder, i => {
+        t.sortOutputs((outputs) => {
+          return _.map(outputOrder, (i) => {
             return outputs[i];
           });
         });
@@ -344,12 +342,12 @@ export class Utils {
       return t;
     } else {
       const { data, destinationTag, outputs, payProUrl, tokenAddress } = txp;
-      const recipients = outputs.map(output => {
+      const recipients = outputs.map((output) => {
         return {
           amount: output.amount,
           address: output.toAddress,
           data: output.data,
-          gasLimit: output.gasLimit
+          gasLimit: output.gasLimit,
         };
       });
       // Backwards compatibility BWC <= 8.9.0
@@ -366,7 +364,7 @@ export class Utils {
           tag: destinationTag ? Number(destinationTag) : undefined,
           chain,
           nonce: Number(txp.nonce) + Number(index),
-          recipients: [recipients[index]]
+          recipients: [recipients[index]],
         });
         unsignedTxs.push(rawTx);
       }

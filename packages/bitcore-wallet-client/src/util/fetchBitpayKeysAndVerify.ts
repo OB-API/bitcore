@@ -22,25 +22,22 @@ keyRequests.push(
       method: 'GET',
       url: 'https://api.github.com/repos/bitpay/pgp-keys/contents/keys',
       headers: {
-        'user-agent': 'BitPay Key-Check Utility'
+        'user-agent': 'BitPay Key-Check Utility',
       },
-      json: true
-    }).then(pgpKeyFiles => {
+      json: true,
+    }).then((pgpKeyFiles) => {
       let fileDataPromises = [];
-      pgpKeyFiles.forEach(file => {
+      pgpKeyFiles.forEach((file) => {
         fileDataPromises.push(
           (() => {
             return request({
               method: 'GET',
               url: file.download_url,
               headers: {
-                'user-agent': 'BitPay Key-Check Utility'
-              }
-            }).then(body => {
-              let hash = crypto
-                .createHash('sha256')
-                .update(body)
-                .digest('hex');
+                'user-agent': 'BitPay Key-Check Utility',
+              },
+            }).then((body) => {
+              let hash = crypto.createHash('sha256').update(body).digest('hex');
               githubPgpKeys[hash] = body;
               return Promise.resolve();
             });
@@ -59,15 +56,12 @@ keyRequests.push(
       method: 'GET',
       url: 'https://bitpay.com/pgp-keys.json',
       headers: {
-        'user-agent': 'BitPay Key-Check Utility'
+        'user-agent': 'BitPay Key-Check Utility',
       },
-      json: true
-    }).then(body => {
-      body.pgpKeys.forEach(function(key) {
-        let hash = crypto
-          .createHash('sha256')
-          .update(key.publicKey)
-          .digest('hex');
+      json: true,
+    }).then((body) => {
+      body.pgpKeys.forEach(function (key) {
+        let hash = crypto.createHash('sha256').update(key.publicKey).digest('hex');
         bitpayPgpKeys[hash] = key.publicKey;
       });
       return Promise.resolve();
@@ -81,24 +75,24 @@ Promise.all(keyRequests)
       console.log('Warning: Different number of keys returned by key lists');
     }
 
-    let bitpayOnlyKeys = Object.keys(bitpayPgpKeys).filter(keyHash => {
+    let bitpayOnlyKeys = Object.keys(bitpayPgpKeys).filter((keyHash) => {
       return !githubPgpKeys[keyHash];
     });
 
-    let githubOnlyKeys = Object.keys(githubPgpKeys).filter(keyHash => {
+    let githubOnlyKeys = Object.keys(githubPgpKeys).filter((keyHash) => {
       return !bitpayPgpKeys[keyHash];
     });
 
     if (bitpayOnlyKeys.length) {
       console.log('BitPay returned some keys which are not present in github');
-      Object.keys(bitpayOnlyKeys).forEach(keyHash => {
+      Object.keys(bitpayOnlyKeys).forEach((keyHash) => {
         console.log(`Hash ${keyHash} Key: ${bitpayOnlyKeys[keyHash]}`);
       });
     }
 
     if (githubOnlyKeys.length) {
       console.log('GitHub returned some keys which are not present in BitPay');
-      Object.keys(githubOnlyKeys).forEach(keyHash => {
+      Object.keys(githubOnlyKeys).forEach((keyHash) => {
         console.log(`Hash ${keyHash} Key: ${githubOnlyKeys[keyHash]}`);
       });
     }
@@ -113,18 +107,13 @@ Promise.all(keyRequests)
   .then(() => {
     console.log('Importing PGP keys for later use...');
     return Promise.all(
-      Object.values(bitpayPgpKeys).map(pgpKeyString => {
+      Object.values(bitpayPgpKeys).map((pgpKeyString) => {
         return new Promise((resolve, reject) => {
           kbpgp.KeyManager.import_from_armored_pgp({ armored: pgpKeyString }, (err, km) => {
             if (err) {
               return reject(err);
             }
-            importedPgpKeys[
-              km.pgp
-                .key(km.pgp.primary)
-                .get_fingerprint()
-                .toString('hex')
-            ] = km;
+            importedPgpKeys[km.pgp.key(km.pgp.primary).get_fingerprint().toString('hex')] = km;
             return resolve();
           });
         });
@@ -137,9 +126,9 @@ Promise.all(keyRequests)
       method: 'GET',
       url: 'https://bitpay.com/signingKeys/paymentProtocol.json',
       headers: {
-        'user-agent': 'BitPay Key-Check Utility'
-      }
-    }).then(rawEccPayload => {
+        'user-agent': 'BitPay Key-Check Utility',
+      },
+    }).then((rawEccPayload) => {
       if (rawEccPayload.indexOf('rate limit') !== -1) {
         return Promise.reject('Rate limited by BitPay');
       }
@@ -148,10 +137,7 @@ Promise.all(keyRequests)
       //    if (new Date(parsedEccPayload.expirationDate) < Date.now()) {
       //      return console.log('The currently published ECC keys are expired');
       //    }
-      eccKeysHash = crypto
-        .createHash('sha256')
-        .update(rawEccPayload)
-        .digest('hex');
+      eccKeysHash = crypto.createHash('sha256').update(rawEccPayload).digest('hex');
       return Promise.resolve();
     });
   })
@@ -161,13 +147,13 @@ Promise.all(keyRequests)
       method: 'GET',
       url: `https://bitpay.com/signatures/${eccKeysHash}.json`,
       headers: {
-        'user-agent': 'BitPay Key-Check Utility'
+        'user-agent': 'BitPay Key-Check Utility',
       },
-      json: true
-    }).then(signatureData => {
+      json: true,
+    }).then((signatureData) => {
       console.log('Verifying each signature is valid and comes from the set of PGP keys retrieved earlier');
       Promise.all(
-        signatureData.signatures.map(signature => {
+        signatureData.signatures.map((signature) => {
           return new Promise((resolve, reject) => {
             let pgpKey = importedPgpKeys[signature.identifier];
             if (!pgpKey) {
@@ -204,26 +190,14 @@ Promise.all(keyRequests)
 
       console.log('----\nValid keymap for use in bitcoinRpc example:');
 
-      parsedEccPayload.publicKeys.forEach(pubkey => {
+      parsedEccPayload.publicKeys.forEach((pubkey) => {
         // Here we are just generating the pubkey hash (btc address) of each of the public keys received for easy lookup later
         // as this is what will be provided by the x-identity header
-        let a = crypto
-          .createHash('sha256')
-          .update(pubkey, 'hex')
-          .digest();
-        let b = crypto
-          .createHash('rmd160')
-          .update(a)
-          .digest('hex');
+        let a = crypto.createHash('sha256').update(pubkey, 'hex').digest();
+        let b = crypto.createHash('rmd160').update(a).digest('hex');
         let c = '00' + b; // This is assuming livenet
-        let d = crypto
-          .createHash('sha256')
-          .update(c, 'hex')
-          .digest();
-        let e = crypto
-          .createHash('sha256')
-          .update(d)
-          .digest('hex');
+        let d = crypto.createHash('sha256').update(c, 'hex').digest();
+        let e = crypto.createHash('sha256').update(d).digest('hex');
 
         let pubKeyHash = bs58.encode(Buffer.from(c + e.substr(0, 8), 'hex'));
 
@@ -231,7 +205,7 @@ Promise.all(keyRequests)
           owner: parsedEccPayload.owner,
           networks: ['main'],
           domains: parsedEccPayload.domains,
-          publicKey: pubkey
+          publicKey: pubkey,
         };
 
         // Add Bitpay's testnet
@@ -239,7 +213,7 @@ Promise.all(keyRequests)
           owner: 'BitPay (TESTNET ONLY - DO NOT TRUST FOR ACTUAL BITCOIN)',
           networks: ['test'],
           domains: ['test.bitpay.com'],
-          publicKey: '03159069584176096f1c89763488b94dbc8d5e1fa7bf91f50b42f4befe4e45295a'
+          publicKey: '03159069584176096f1c89763488b94dbc8d5e1fa7bf91f50b42f4befe4e45295a',
         };
       });
 
@@ -252,7 +226,7 @@ Promise.all(keyRequests)
       return Promise.reject(`Insufficient good signatures ${signatureCount} for a proper validity check`);
     }
   })
-  .catch(err => {
+  .catch((err) => {
     console.log(`Error encountered ${err}`);
   });
 

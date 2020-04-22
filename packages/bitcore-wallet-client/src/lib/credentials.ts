@@ -43,7 +43,7 @@ export class Credentials {
     'version',
     'rootPath', // this is only for information
     'keyId', // this is only for information
-    'token' // is this wallet is for a ERC20 token
+    'token', // is this wallet is for a ERC20 token
   ];
   version: number;
   account: number;
@@ -122,8 +122,8 @@ export class Credentials {
     x.publicKeyRing = [
       {
         xPubKey: x.xPubKey,
-        requestPubKey: x.requestPubKey
-      }
+        requestPubKey: x.requestPubKey,
+      },
     ];
 
     return x;
@@ -196,7 +196,7 @@ export class Credentials {
       throw new Error('Bad credentials version');
     }
 
-    _.each(Credentials.FIELDS, function(k) {
+    _.each(Credentials.FIELDS, function (k) {
       x[k] = obj[k];
     });
 
@@ -216,7 +216,7 @@ export class Credentials {
     var self = this;
 
     var x = {};
-    _.each(Credentials.FIELDS, function(k) {
+    _.each(Credentials.FIELDS, function (k) {
       x[k] = self[k];
     });
     return x;
@@ -251,8 +251,8 @@ export class Credentials {
       this.addPublicKeyRing([
         {
           xPubKey: this.xPubKey,
-          requestPubKey: this.requestPubKey
-        }
+          requestPubKey: this.requestPubKey,
+        },
       ]);
     }
   }
