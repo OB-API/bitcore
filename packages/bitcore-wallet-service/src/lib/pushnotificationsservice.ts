@@ -472,7 +472,9 @@ export class PushNotificationsService {
     });
   }
 
-  _getAccessToken(cb) {
+ _getAccessToken(cb) {
+    // Check if the token is already set
+    this.scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
     const jwtClient = new google.auth.JWT(
       this.authorizationKey.client_email,
       null,
@@ -484,7 +486,7 @@ export class PushNotificationsService {
       if (err) {
         return cb(err);
       }
-      return cb(tokens.access_token);
+      return cb(tokens);
     });
   }
 }

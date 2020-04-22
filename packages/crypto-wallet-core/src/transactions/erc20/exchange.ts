@@ -1,6 +1,6 @@
-import { exchangeABI } from './uniswap';
 import Web3 from 'web3';
 import { ETHTxProvider } from '../eth';
+import { exchangeABI } from './uniswap';
 
 export class ExchangeTxProvider extends ETHTxProvider {
   getUniSwapExchange(tokenContractAddress) {
