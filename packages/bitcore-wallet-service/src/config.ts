@@ -73,7 +73,7 @@ module.exports = {
     subjectPrefix: '',
     pushServerUrl: {
       url: 'fcm.googleapis.com/v1/projects/',
-      projectId:'bluebiz-cafd5',
+      projectId: 'bluebiz-cafd5',
       path: '/messages:send'
     },
     scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
