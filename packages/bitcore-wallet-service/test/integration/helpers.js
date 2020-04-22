@@ -20,15 +20,15 @@ var Bitcore_ = {
   bch: require('bitcore-lib-cash')
 };
 
-var { ChainService } = require('../../ts_build/lib/chain/index');
-var Common = require('../../ts_build/lib/common');
+var { ChainService } = require('../../ts_build/bitcore-wallet-service/src/lib/chain/index');
+var Common = require('../../ts_build/bitcore-wallet-service/src/lib/common');
 var Utils = Common.Utils;
 var Constants = Common.Constants;
 var Defaults = Common.Defaults;
 
-var { Storage } = require('../../ts_build/lib/storage');
-var { WalletService } = require('../../ts_build/lib/server');
-var Model = require('../../ts_build/lib/model');
+var { Storage } = require('../../ts_build/bitcore-wallet-service/src/lib/storage');
+var { WalletService } = require('../../ts_build/bitcore-wallet-service/src/lib/server');
+var Model = require('../../ts_build/bitcore-wallet-service/src/lib/model');
 var TestData = require('../testdata');
 
 var storage, blockchainExplorer;

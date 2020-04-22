@@ -71,8 +71,13 @@ module.exports = {
     defaultLanguage: 'en',
     defaultUnit: 'btc',
     subjectPrefix: '',
-    pushServerUrl: 'https://fcm.googleapis.com/fcm',
-    authorizationKey: 'You_have_to_put_something_here'
+    pushServerUrl: {
+      url: 'fcm.googleapis.com/v1/projects/',
+      projectId:'bluebiz-cafd5',
+      path: '/messages:send'
+    },
+    scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
+    authorizationKey: process.env.GOOGLE_SERVICE_CREDENTIALS
   },
   fiatRateServiceOpts: {
     defaultProvider: 'BitPay',

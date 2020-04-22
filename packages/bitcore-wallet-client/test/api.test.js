@@ -15,7 +15,7 @@ var mongodb = require('mongodb');
 var config = require('./test-config');
 var oldCredentials = require('./legacyCredentialsExports');
 
-var CWC = require('crypto-wallet-core');
+var CWC = require('@bitrupee/crypto-wallet-core');
 
 var Bitcore = CWC.BitcoreLib;
 var Bitcore_ = {

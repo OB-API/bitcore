@@ -9,11 +9,12 @@ var should = chai.should();
 var log = require('npmlog');
 log.debug = log.verbose;
 log.level = 'info';
+const request = require('request');
 
 var sjcl = require('sjcl');
 
-var { WalletService } = require('../../ts_build/lib/server');
-var { PushNotificationsService } = require('../../ts_build/lib/pushnotificationsservice');
+var { WalletService } = require('../../ts_build/bitcore-wallet-service/src/lib/server');
+var { PushNotificationsService } = require('../../ts_build/bitcore-wallet-service/src/lib/pushnotificationsservice');
 
 var TestData = require('../testdata');
 var helpers = require('./helpers');
@@ -75,7 +76,7 @@ describe('Push notifications', function() {
               lockOpts: {},
               messageBroker: server.messageBroker,
               storage: helpers.getStorage(),
-              request: requestStub,
+              request:requestStub,
               pushNotificationsOpts: {
                 templatePath: 'templates',
                 defaultLanguage: 'en',
@@ -589,7 +590,7 @@ describe('Push notifications', function() {
                 function(done) {
                   server.pushNotificationsSubscribe({
                     token: '1234',
-                    packageName: 'com.wallet',
+                    packageName: 'com.wallet.bluebiz',
                     platform: 'Android',
                   }, done);
                 },
@@ -611,10 +612,26 @@ describe('Push notifications', function() {
               pushNotificationsOpts: {
                 templatePath: 'templates',
                 defaultLanguage: 'en',
-                defaultUnit: 'eth',
+                defaultUnit: 'btc',
                 subjectPrefix: '',
-                pushServerUrl: 'http://localhost:8000',
-                authorizationKey: 'secret',
+                pushServerUrl: {
+                  url: 'fcm.googleapis.com/v1/projects/',
+                  projectId:'bluebiz-cafd5',
+                  path: '/messages:send'
+                },
+                scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
+                authorizationKey:  {
+                  type: "service_account",
+                  project_id: "bluebiz-cafd5",
+                  private_key_id: "412937c4ed32508747d717314fa84478e5cbcdc6",
+                  private_key: "-----BEGIN PRIVATE KEY-----MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCP+97rD0wZuM28\nEkfFxUq/437V30Ps6myOa1HshS67V7nqKZu4nMk3wx5ac+VMLuKLEDexL+P4FKHv\nVlKjnS4ivliHW/NPK6O6yyXOs8BwA2kAguI8KCXknh9+FZ+JbADBUo2dwRBYhq7uZsTFVj3kfoVUwMttyIMFv/jeli8G2XHozcOqWjj9q6mWCs85mEtwa8AbdVVrSFwG\nfv+MnOHF5OyiA6aLdmxzHVVJVUFVnkpo8sk9Yu7Fk99lp/dwVpstX5GTBAwtwS4R9TixMcxQ1i00SqL0JDvm6lDcRkzkG1UiU4a1Utt8AEJig6m5ERJYTKBmz/2yKQxJ\nR6ie/HulAgMBAAECggEAG7VY3NuAxaJu1TafYUvqaqsZCYeBxuIGKhI1HdMzfxIO\n0SVYtlpVzslZ2gZbpiGPrztbvFl/AYrW7vwpwxrIeh8vYj0rwZygUZ4ulGy7J9NALb0CVJlVUX2sidMXdJa4PnvojOdOgfrJR0+3plJGbuZ6Oikv/NyNelnLRuqX+jUs\naOtuiSs4t4Hs9OApRdC+6/mcd6omuMZskaaMc26evZgiNY/0W1+Ym0n8Rosm9sHUyfLbJiZbJnXb/xivOuELnO4PGsHEYE5C6lKl0QZUnu64Ffb2rIoKyTJUiWeqVTriOqW4UF2RqzGho130wYZWiIhXnDa1LtyeSd8Fs4wXMQKBgQDHLatDVGjE3z4XMbfz\n88CwbVJk32cL2qgrq/x9mkSCxfCkR8pE95ctTGDZZEC5ioFqHYKiKW4amVahoeYxVYpBqga0zGAGqHf0ltBvmXF/QvIbsOb+8aQg+fgWkKOsiBdbPO6p0bCiSp8I7UNV\nvpoVT0SQMhBjkznDdbuH530JqwKBgQC5D0Dg3IZSh+y1vCa5sz+t6lMTRaog6McNhTwm+IjhTziRzBfkEVDBFPvSrcy5xO0QHx07mWgDvCxNqLS8XtT8lrfbYQ0aLsMxBnA15bvNUBOBOGL6aKBFZ5r95MKfH5VnJm4jzyKMJ/nErtMz6vm1Clp4hvMMu5mFlsnsif5f7wKBgEWhapD0Llg87xjusa9gFInY/gfzrbOQMmBqFK/YQYEyL6lOy6CGqdwVKnp1OMdka0+sl2GXeD1mQ8nnrnCqxdWk2glUtXE+bgkcvCt3ih0CS19w3aBc25MHsDo7QGzterTTvV+yxbxGuAhH4dVU98rhVkfOqLoW2wfA3dlqDOVXAoGBAJB+Y3bvWQXp0Z5YyZfnaIo/0xvSIjNN7dYVuNDo79+UfqQASosuJfKMks9+GsLWCw+ya53Uew2niKQeXPhTx1NtzyLA1X0jFA8catL6jLeTlZco0seYl8N5UOB7FKcv/vSqYgcdvWjX8cJriscX6l88NUW0gOPpOsa+5O0HFhILAoGAJaHuwUgxzctayQ3rEkKxjV03i4DfNFCLgktkbKUD7Ka8gYC1m5xgo6vd4ZXt7KGoyv9LRgNChVJsw4IchILM8cmY01/Z/UHNltj4Nsl5eNUAkS7qn/4aB43rZeIfAIci++c0P2kfMkgErRxBdrg2104p0pBxT4pu2O5Cziq9k6Y=-----END PRIVATE KEY-----",
+                  client_email: "firebase-adminsdk-3azyh@bluebiz-cafd5.iam.gserviceaccount.com",
+                  client_id: "115719781147548068876",
+                  auth_uri: "https://accounts.google.com/o/oauth2/auth",
+                  token_uri: "https://oauth2.googleapis.com/token",
+                  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+                  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-3azyh%40bluebiz-cafd5.iam.gserviceaccount.com"
+                }
               },
             }, function(err) {
               should.not.exist(err);
@@ -658,6 +675,30 @@ describe('Push notifications', function() {
         });
       });
     });
+    it('should send notification with new provision of google services', (done) => {
+      server.savePreferences({
+        language: 'en',
+        unit: 'bit',
+      }, function(err) {
+        server.createAddress({}, (err, address) => {
+          should.not.exist(err);
+
+          // Simulate incoming tx notification
+          server._notify('NewIncomingTx', {
+            txid: '997',
+            address: address,
+            amount: 4e6, // ~ 4.00 USD
+            tokenAddress: TOKENS[0]
+          }, {
+            isGlobal: true
+          }, (err) => {
+            setTimeout(function() {
+              done();
+            }, 100);
+          });
+        });
+      });
+    });
     it('should send notification if the tx is PAX', (done) => {
       server.savePreferences({
         language: 'es',
@@ -676,14 +717,7 @@ describe('Push notifications', function() {
             isGlobal: true
           }, (err) => {
             setTimeout(function() {
-              var calls = requestStub.getCalls();
-              calls.length.should.equal(1);
-              var args = _.map(_.takeRight(calls, 2), function(c) {
-                return c.args[0];
-              });
-              args[0].body.notification.title.should.contain('Nuevo pago recibido');
-              args[0].body.notification.body.should.contain('4.00');
-              args[0].body.data.tokenAddress.should.equal('0x8E870D67F660D95d5be530380D0eC0bd388289E1');
+              console.log();
               done();
             }, 100);
           });
