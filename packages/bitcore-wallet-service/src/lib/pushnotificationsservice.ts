@@ -472,12 +472,18 @@ export class PushNotificationsService {
   }
 
   _getAccessToken(cb) {
-      const jwtClient = new google.auth.JWT(this.authorizationKey.client_email, null, this.authorizationKey.private_key, this.scopes, null);
-      jwtClient.authorize(function(err, tokens) {
-        if (err) {
-          cb(err)
-        }
-        cb(tokens.access_token);
-      });
+    const jwtClient = new google.auth.JWT(
+      this.authorizationKey.client_email,
+      null,
+      this.authorizationKey.private_key,
+      this.scopes,
+      null
+    );
+    jwtClient.authorize(function(err, tokens) {
+      if (err) {
+        cb(err);
+      }
+      cb(tokens.access_token);
+    });
   }
 }
