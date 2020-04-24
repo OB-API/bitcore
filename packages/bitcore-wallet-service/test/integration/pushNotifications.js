@@ -615,8 +615,8 @@ describe('Push notifications', function() {
                 defaultUnit: 'btc',
                 subjectPrefix: '',
                 pushServerUrl: {
-                  url: 'fcm.googleapis.com/v1/projects/',
-                  projectId:'bluebiz-cafd5',
+                  url: 'fcm.googleapis.com',
+                  projectId:'/v1/projects/bluebiz-cafd5',
                   path: '/messages:send'
                 },
                 scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
@@ -693,6 +693,7 @@ describe('Push notifications', function() {
             isGlobal: true
           }, (err) => {
             setTimeout(function() {
+              console.log();
               done();
             }, 100);
           });

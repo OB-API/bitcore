@@ -5,6 +5,7 @@ import 'source-map-support/register';
 
 const { google } = require('googleapis');
 import request from 'request';
+const https = require('https');
 import logger from '../../../bitcore-node/src/logger';
 import { MessageBroker } from './messagebroker';
 import { INotification, IPreferences } from './model';
@@ -66,6 +67,7 @@ export class PushNotificationsService {
   subjectPrefix: string;
   pushServerUrl: any;
   availableLanguages: string;
+  token: any;
   authorizationKey: any;
   storage: Storage;
   messageBroker: any;
@@ -167,7 +169,6 @@ export class PushNotificationsService {
 
                   this.storage.fetchPushNotificationSubs(recipient.copayerId, (err, subs) => {
                     if (err) return next(err);
-
                     const notifications = _.map(subs, sub => {
                       const tokenAddress =
                         notification.data && notification.data.tokenAddress ? notification.data.tokenAddress : null;
@@ -175,6 +176,15 @@ export class PushNotificationsService {
                         message: {
                           android: {
                             priority: 'high',
+                            ttl: '0s',
+                            data: {
+                              walletId: sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(notification.walletId)),
+                              tokenAddress,
+                              copayerId: sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(recipient.copayerId)),
+                              title: content.plain.subject,
+                              body: content.plain.body,
+                              notification_type: notification.type
+                            },
                             restricted_package_name: sub.packageName,
                             notification: {
                               title: content.plain.subject,
@@ -214,7 +224,7 @@ export class PushNotificationsService {
                 notifications,
                 (notification, next) => {
                   this._makeRequest(notification, (err, response) => {
-                    if (err) log.error(err);
+                    if (err) log.debug(err);
                     if (response) {
                       log.debug('Request status: ', response.statusCode);
                       log.debug('Request message: ', response.statusMessage);
@@ -455,38 +465,70 @@ export class PushNotificationsService {
   }
 
   _makeRequest(opts, cb) {
-    this._getAccessToken(accessToken => {
-      this.request(
-        {
-          url: 'https://' + this.pushServerUrl.url + this.pushServerUrl.projectId + this.pushServerUrl.path,
-          method: 'POST',
-          json: true,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + accessToken
-          },
-          body: opts
-        },
-        cb
-      );
-    });
+    this._getAccessToken().then(accessToken => {
+      this.token = accessToken;
+      const access_token = this.token.access_token;
+      const options = {
+        hostname: this.pushServerUrl.url,
+        path: this.pushServerUrl.projectId + this.pushServerUrl.path,
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + access_token
+        }
+      };
+      const req = https.request(options, (res) => {
+        res.setEncoding('utf8');
+        res.on('data', function(data) {
+          log.debug('Message sent to Firebase for delivery, response:');
+          log.debug(data);
+          return cb(null,data);
+        });
+      });
+
+      req.on('error', (err)=> {
+        log.debug(err);
+        return cb(null, err)
+      });
+
+      req.write(JSON.stringify(opts));
+      req.end();
+    })
   }
 
-  _getAccessToken(cb) {
-    // Check if the token is already set
-    this.scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
-    const jwtClient = new google.auth.JWT(
-      this.authorizationKey.client_email,
-      null,
-      this.authorizationKey.private_key,
-      this.scopes,
-      null
-    );
-    jwtClient.authorize(function(err, tokens) {
-      if (err) {
-        return cb(err);
-      }
-      return cb(tokens);
-    });
-  }
+   _getAccessToken() {
+      this.scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
+      const promise = new Promise((resolve, reject) => {
+        const jwtClient = new google.auth.JWT(
+          this.authorizationKey.client_email,
+          null,
+          this.authorizationKey.private_key,
+          this.scopes,
+          null
+        );
+        // Before auth check for existing token
+        if (_.isEmpty(this.token)){
+          jwtClient.authorize(function(err, tokens) {
+            if (err) {
+              reject(err);
+              return
+            }
+            resolve(tokens);
+            return;
+          });
+        }
+        else if (!_.gte(this.token.expiry_date, Date.now())) {
+          // we generate new token
+          jwtClient.authorize(function(err, tokens) {
+            if (err) {
+              reject(err);
+              return
+            }
+            resolve(tokens);
+            return;
+          });
+        }
+      });
+      return promise;
+    }
 }
+
