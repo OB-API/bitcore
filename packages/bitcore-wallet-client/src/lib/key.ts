@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { Constants, Utils } from './common';
 import { Credentials } from './credentials';
 
-import { BitcoreLib, Deriver, Transactions } from 'crypto-wallet-core';
+import { BitcoreLib, BitcoreLibCash, Deriver, Transactions } from 'crypto-wallet-core';
 
 var Bitcore = BitcoreLib;
 var Mnemonic = require('bitcore-mnemonic');
@@ -22,7 +22,7 @@ const wordsForLang: any = {
   ja: Mnemonic.Words.JAPANESE,
   zh: Mnemonic.Words.CHINESE,
   fr: Mnemonic.Words.FRENCH,
-  it: Mnemonic.Words.ITALIAN,
+  it: Mnemonic.Words.ITALIAN
 };
 
 // we always set 'livenet' for xprivs. it has not consecuences
@@ -49,7 +49,7 @@ export class Key {
     'use0forBCH', // use the 0 coin' path element in BCH  (legacy)
     'use44forMultisig', // use the purpose 44' for multisig wallts (legacy)
     'version',
-    'id',
+    'id'
   ];
   constructor() {
     this.version = 1;
@@ -63,7 +63,7 @@ export class Key {
     return a.id == b.id;
   }
 
-  static create = function (opts) {
+  static create = function(opts) {
     opts = opts || {};
     if (opts.language && !wordsForLang[opts.language]) throw new Error('Unsupported language');
 
@@ -89,7 +89,7 @@ export class Key {
     return x;
   };
 
-  static fromMnemonic = function (words, opts) {
+  static fromMnemonic = function(words, opts) {
     $.checkArgument(words);
     if (opts) $.shouldBeObject(opts);
     opts = opts || {};
@@ -110,7 +110,7 @@ export class Key {
     return x;
   };
 
-  static fromExtendedPrivateKey = function (xPriv, opts) {
+  static fromExtendedPrivateKey = function(xPriv, opts) {
     $.checkArgument(xPriv);
     opts = opts || {};
 
@@ -135,7 +135,7 @@ export class Key {
     return x;
   };
 
-  static fromObj = function (obj) {
+  static fromObj = function(obj) {
     $.shouldBeObject(obj);
 
     var x: any = new Key();
@@ -143,7 +143,7 @@ export class Key {
       throw new Error('Bad Key version');
     }
 
-    _.each(Key.FIELDS, function (k) {
+    _.each(Key.FIELDS, function(k) {
       x[k] = obj[k];
     });
 
@@ -151,21 +151,21 @@ export class Key {
     return x;
   };
 
-  toObj = function () {
+  toObj = function() {
     var self = this;
 
     var x = {};
-    _.each(Key.FIELDS, function (k) {
+    _.each(Key.FIELDS, function(k) {
       x[k] = self[k];
     });
     return x;
   };
 
-  isPrivKeyEncrypted = function () {
+  isPrivKeyEncrypted = function() {
     return !!this.xPrivKeyEncrypted && !this.xPrivKey;
   };
 
-  checkPassword = function (password) {
+  checkPassword = function(password) {
     if (this.isPrivKeyEncrypted()) {
       try {
         sjcl.decrypt(password, this.xPrivKeyEncrypted);
@@ -177,7 +177,7 @@ export class Key {
     return null;
   };
 
-  get = function (password) {
+  get = function(password) {
     var keys: any = {};
     let fingerPrintUpdated = false;
 
@@ -209,7 +209,7 @@ export class Key {
     return keys;
   };
 
-  encrypt = function (password, opts) {
+  encrypt = function(password, opts) {
     if (this.xPrivKeyEncrypted) throw new Error('Private key already encrypted');
 
     if (!this.xPrivKey) throw new Error('No private key to encrypt');
@@ -223,7 +223,7 @@ export class Key {
     delete this.mnemonic;
   };
 
-  decrypt = function (password) {
+  decrypt = function(password) {
     if (!this.xPrivKeyEncrypted) throw new Error('Private key is not encrypted');
 
     try {
@@ -239,7 +239,7 @@ export class Key {
     }
   };
 
-  derive = function (password, path) {
+  derive = function(password, path) {
     $.checkArgument(path, 'no path at derive()');
     var xPrivKey = new Bitcore.HDPrivateKey(this.get(password).xPrivKey, NETWORK);
     var deriveFn = this.compliantDerivation
@@ -297,7 +297,7 @@ export class Key {
    * opts.n
    */
 
-  createCredentials = function (password, opts) {
+  createCredentials = function(password, opts) {
     opts = opts || {};
 
     if (password) $.shouldBeString(password, 'provide password');
@@ -335,7 +335,7 @@ export class Key {
       keyId: this.id,
       requestPrivKey,
       addressType: opts.addressType,
-      walletPrivKey: opts.walletPrivKey,
+      walletPrivKey: opts.walletPrivKey
     });
   };
 
@@ -345,7 +345,7 @@ export class Key {
    * opts.requestPrivKey
    */
 
-  createAccess = function (password, opts) {
+  createAccess = function(password, opts) {
     opts = opts || {};
     $.shouldBeString(opts.path);
 
@@ -358,11 +358,11 @@ export class Key {
 
     return {
       signature,
-      requestPrivKey,
+      requestPrivKey
     };
   };
 
-  sign = function (rootPath, txp, password, cb) {
+  sign = function(rootPath, txp, password, cb) {
     $.shouldBeString(rootPath);
     if (this.isPrivKeyEncrypted() && !password) {
       return cb(new Errors.ENCRYPTED_PRIVATE_KEY());
@@ -376,7 +376,7 @@ export class Key {
     var t = Utils.buildTx(txp);
 
     if (Constants.UTXO_COINS.includes(txp.coin)) {
-      _.each(txp.inputs, function (i) {
+      _.each(txp.inputs, function(i) {
         $.checkState(i.path, 'Input derivation path not available (signing transaction)');
         if (!derived[i.path]) {
           derived[i.path] = xpriv.deriveChild(i.path).privateKey;
@@ -384,12 +384,12 @@ export class Key {
         }
       });
 
-      var signatures = _.map(privs, function (priv, i) {
-        return t.getSignatures(priv);
+      var signatures = _.map(privs, function(priv, i) {
+        return t.getSignatures(priv, undefined, txp.signingMethod);
       });
 
-      signatures = _.map(_.sortBy(_.flatten(signatures), 'inputIndex'), function (s) {
-        return s.signature.toDER().toString('hex');
+      signatures = _.map(_.sortBy(_.flatten(signatures), 'inputIndex'), function(s) {
+        return s.signature.toDER(txp.signingMethod).toString('hex');
       });
 
       return signatures;
@@ -406,7 +406,7 @@ export class Key {
         const signed = Transactions.getSignature({
           chain,
           tx: rawTx,
-          key: { privKey, pubKey },
+          key: { privKey, pubKey }
         });
         signatures.push(signed);
       }
