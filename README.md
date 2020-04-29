@@ -46,7 +46,7 @@ sudo docker inspect deviceID | grep IPAddress
 
 # Enter your docker device ID in place of deviceID
 
-# Replace the hostname with that respective IP address of your docker in Bitcore-test.config.json</br>
+# Replace the hostname with that respective IP address of your docker in Bitcore-test.config.json
 
 mv Bitcore-test.config.json Bitcore.config.json
 ```
