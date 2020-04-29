@@ -9,6 +9,7 @@
 - Trusted P2P Peer
 - MongoDB Server >= v3.4
 - Docker
+- nodejs >= 10
 - make g++ gcc 
 
 ### Checkout the repo
@@ -28,21 +29,21 @@ npm install
 Start Docker by running
 
 ```sh
-sudo dockerd
+dockerd
 ```
 
 ```sh
-sudo docker-compose -f docker-compose.test.yml up
+docker-compose -f docker-compose.test.yml up
 ```
 
 ### 2. Setup Bitcore Node Config
 
 ```sh
-sudo docker ps
+docker ps
 
 # Get IP Addresses of the Dockers 
 
-sudo docker inspect deviceID | grep IPAddress
+docker inspect deviceID | grep IPAddress
 
 # Enter your docker device ID in place of deviceID
 
