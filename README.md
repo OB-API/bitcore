@@ -1,4 +1,5 @@
 # Bitcore
+
 ![Circle CI](https://circleci.com/gh/bitpay/bitcore/tree/master.svg?style=shield)
 
 **Infrastructure to build Bitcoin and blockchain-based applications for the next generation of financial technology.**
@@ -9,6 +10,8 @@
 
 - Trusted P2P Peer
 - MongoDB Server >= v3.4
+- Docker
+- nodejs >= 10
 - make g++ gcc 
 
 ### Checkout the repo
@@ -16,13 +19,48 @@
 
 ```sh
 git clone git@github.com:bitpay/bitcore.git
+cd bitcore
 git checkout master
 npm install
 ```
 
 ## Setup Guide
 
-### 1. Setup Bitcore config
+### 1. Setup Docker
+
+Start Docker by running
+
+```sh
+dockerd
+```
+
+```sh
+docker-compose -f docker-compose.test.yml up
+```
+
+### 2. Setup Bitcore Node Config
+
+```sh
+docker ps
+
+# Get IP Addresses of the Dockers 
+
+docker inspect deviceID | grep IPAddress
+
+# Enter your docker device ID in place of deviceID
+
+# Replace the hostname with that respective IP address of your docker in Bitcore-test.config.json
+
+mv Bitcore-test.config.json Bitcore.config.json
+```
+
+### 3. Start Bitcore
+
+```sh
+npm run node
+```
+
+## Example Config files
 
 <details>
 <summary>Example bitcore.config.json</summary>
@@ -104,8 +142,6 @@ npm install
 
 </details>
 
-### 2. Setup Bitcoin Node
-
 <details>
 <summary>Example Bitcoin Mainnet Config</summary>
 
@@ -133,23 +169,6 @@ rpcpassword=password
 
 </details>
 
-### 3. Run Bitcoin node
-
-<details>
-<summary>Example Starting a Bitcoin Node</summary>
-
-```sh
-# Path to your bitcoin application and path to the config above
-/Applications/Bitcoin-Qt.app/Contents/MacOS/Bitcoin-Qt -datadir=/Users/username/blockchains/bitcoin-core/networks/mainnet/
-```
-
-</details>
-
-### 4. Start Bitcore
-
-```sh
-npm run node
-```
 
 ## Applications
 
