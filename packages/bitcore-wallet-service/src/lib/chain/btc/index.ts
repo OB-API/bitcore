@@ -192,17 +192,43 @@ export class BtcChain implements IChain {
   buildTx(txp) {
     const t = new this.bitcoreLib.Transaction();
 
+    // BTC tx version
+    if (txp.version <= 3) {
+      t.setVersion(1);
+    } else {
+      t.setVersion(2);
+
+      // set nLockTime (only txp.version>=4)
+      if (txp.lockUntilBlockHeight) t.lockUntilBlockHeight(txp.lockUntilBlockHeight);
+    }
+
+    /*
+     * txp.inputs clean txp.input
+     * removes possible nSequence number (BIP68)
+     */
+    let inputs = txp.inputs.map(x => {
+      return {
+        address: x.address,
+        txid: x.txid,
+        vout: x.vout,
+        outputIndex: x.outputIndex,
+        scriptPubKey: x.scriptPubKey,
+        satoshis: x.satoshis,
+        publicKeys: x.publicKeys
+      };
+    });
+
     switch (txp.addressType) {
       case Constants.SCRIPT_TYPES.P2WSH:
       case Constants.SCRIPT_TYPES.P2SH:
-        _.each(txp.inputs, i => {
+        _.each(inputs, i => {
           $.checkState(i.publicKeys, 'Inputs should include public keys');
           t.from(i, i.publicKeys, txp.requiredSignatures);
         });
         break;
       case Constants.SCRIPT_TYPES.P2WPKH:
       case Constants.SCRIPT_TYPES.P2PKH:
-        t.from(txp.inputs);
+        t.from(inputs);
         break;
     }
 
@@ -347,7 +373,8 @@ export class BtcChain implements IChain {
 
   addressToStorageTransform(network, address) {}
 
-  addSignaturesToBitcoreTx(tx, inputs, inputPaths, signatures, xpub) {
+  addSignaturesToBitcoreTx(tx, inputs, inputPaths, signatures, xpub, signingMethod) {
+    signingMethod = signingMethod || 'ecdsa';
     if (signatures.length != inputs.length) throw new Error('Number of signatures does not match number of inputs');
 
     let i = 0;
@@ -360,12 +387,10 @@ export class BtcChain implements IChain {
         const s = {
           inputIndex: i,
           signature,
-          sigtype:
-            // tslint:disable-next-line:no-bitwise
-            this.bitcoreLib.crypto.Signature.SIGHASH_ALL | this.bitcoreLib.crypto.Signature.SIGHASH_FORKID,
+          sigtype: this.bitcoreLib.crypto.Signature.SIGHASH_ALL | this.bitcoreLib.crypto.Signature.SIGHASH_FORKID,
           publicKey: pub
         };
-        tx.inputs[i].addSignature(tx, s);
+        tx.inputs[i].addSignature(tx, s, signingMethod);
         i++;
       } catch (e) {}
     });

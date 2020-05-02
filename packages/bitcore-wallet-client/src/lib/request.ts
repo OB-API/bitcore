@@ -34,7 +34,7 @@ export class Request {
 
   getHeaders(method, url, args) {
     var headers = {
-      'x-client-version': 'bwc-' + Package.version
+      'x-client-version': 'bwc-' + Package.version,
     };
     if (this.supportStaffWalletId) {
       headers['x-wallet-id'] = this.supportStaffWalletId;
@@ -107,7 +107,7 @@ export class Request {
       if (res.body)
         log.debug(
           util.inspect(res.body, {
-            depth: 10
+            depth: 10,
           })
         );
 
@@ -142,7 +142,7 @@ export class Request {
         body = JSON.parse(body);
       } catch (e) {
         body = {
-          error: body
+          error: body,
         };
       }
     }
@@ -213,21 +213,21 @@ export class Request {
   doRequestWithLogin(method, url, args, cb) {
     async.waterfall(
       [
-        next => {
+        (next) => {
           if (this.session) return next();
           this.doLogin(next);
         },
-        next => {
+        (next) => {
           this.doRequest(method, url, args, true, (err, body, header) => {
             if (err && err instanceof Errors.NOT_AUTHORIZED) {
-              this.doLogin(err => {
+              this.doLogin((err) => {
                 if (err) return next(err);
                 return this.doRequest(method, url, args, true, next);
               });
             }
             next(null, body, header);
           });
-        }
+        },
       ],
       cb
     );

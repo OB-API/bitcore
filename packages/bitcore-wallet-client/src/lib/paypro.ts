@@ -8,7 +8,7 @@ var Bitcore = BitcoreLib;
 const Errors = require('./errors');
 var Bitcore_ = {
   btc: Bitcore,
-  bch: BitcoreLibCash
+  bch: BitcoreLibCash,
 };
 // const request = require('request');
 const JSON_PAYMENT_REQUEST_CONTENT_TYPE = 'application/payment-request';
@@ -115,7 +115,7 @@ export class PayPro {
   static runRequest(opts, cb) {
     $.checkArgument(opts.network, 'should pass network');
     var r = this.r[opts.method.toLowerCase()](opts.url);
-    _.each(opts.headers, function(v, k) {
+    _.each(opts.headers, function (v, k) {
       if (v) r.set(k, v);
     });
     if (opts.args) {
@@ -164,7 +164,7 @@ export class PayPro {
         return cb(new Error(`Response body hash does not match digest header. Actual: ${hash} Expected: ${digest}`));
       }
       // Step 2: verify digest's signature
-      PayPro._verify(opts.url, res.headers, opts.network, opts.trustedKeys, err => {
+      PayPro._verify(opts.url, res.headers, opts.network, opts.trustedKeys, (err) => {
         if (err) return cb(err);
 
         let ret;
@@ -189,12 +189,12 @@ export class PayPro {
     var COIN = coin.toUpperCase();
     opts.headers = opts.headers || {
       Accept: JSON_PAYMENT_REQUEST_CONTENT_TYPE,
-      'Content-Type': 'application/octet-stream'
+      'Content-Type': 'application/octet-stream',
     };
     opts.method = 'GET';
     opts.network = opts.network || 'livenet';
 
-    PayPro.runRequest(opts, function(err, data) {
+    PayPro.runRequest(opts, function (err, data) {
       if (err) return cb(err);
 
       var ret: any = {};
@@ -247,9 +247,7 @@ export class PayPro {
   }
 
   static send(opts, cb) {
-    $.checkArgument(opts.rawTxUnsigned)
-      .checkArgument(opts.url)
-      .checkArgument(opts.rawTx);
+    $.checkArgument(opts.rawTxUnsigned).checkArgument(opts.url).checkArgument(opts.rawTx);
 
     var coin = opts.coin || 'btc';
     var COIN = coin.toUpperCase();
@@ -257,20 +255,20 @@ export class PayPro {
     opts.network = opts.network || 'livenet';
     opts.method = 'POST';
     opts.headers = opts.headers || {
-      'Content-Type': JSON_PAYMENT_VERIFY_CONTENT_TYPE
+      'Content-Type': JSON_PAYMENT_VERIFY_CONTENT_TYPE,
     };
     let size = opts.rawTx.length / 2;
     opts.args = JSON.stringify({
       currency: COIN,
       unsignedTransaction: opts.rawTxUnsigned,
-      weightedSize: size
+      weightedSize: size,
     });
 
     // Do not verify verify-payment message's response
     opts.noVerify = true;
 
     // verify request
-    PayPro.runRequest(opts, function(err, rawData) {
+    PayPro.runRequest(opts, function (err, rawData) {
       if (err) {
         console.log('Error at verify-payment:', err.message ? err.message : '', opts);
         return cb(err);
@@ -278,7 +276,7 @@ export class PayPro {
 
       opts.headers = {
         'Content-Type': JSON_PAYMENT_CONTENT_TYPE,
-        Accept: JSON_PAYMENT_ACK_CONTENT_TYPE
+        Accept: JSON_PAYMENT_ACK_CONTENT_TYPE,
       };
 
       if (opts.bp_partner) {
@@ -290,13 +288,13 @@ export class PayPro {
 
       opts.args = JSON.stringify({
         currency: COIN,
-        transactions: [opts.rawTx]
+        transactions: [opts.rawTx],
       });
 
       // Do not verify payment message's response
       opts.noVerify = true;
 
-      PayPro.runRequest(opts, function(err, rawData) {
+      PayPro.runRequest(opts, function (err, rawData) {
         if (err) {
           console.log('Error at payment:', err.message ? err.message : '', opts);
           return cb(err);
