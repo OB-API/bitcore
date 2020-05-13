@@ -9,3 +9,4 @@ export { TxConfirmationSub } from './txconfirmationsub';
 export { TxNote } from './txnote';
 export { ITxProposal, TxProposal } from './txproposal';
 export { IWallet, Wallet } from './wallet';
+export { IUser, User } from './user' ;

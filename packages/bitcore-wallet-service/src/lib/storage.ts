@@ -12,7 +12,8 @@ import {
   TxConfirmationSub,
   TxNote,
   TxProposal,
-  Wallet
+  Wallet,
+  User
 } from './model';
 
 const BCHAddressTranslator = require('./bchaddresstranslator'); // only for migration
@@ -36,7 +37,8 @@ const collections = {
   SESSIONS: 'sessions',
   PUSH_NOTIFICATION_SUBS: 'push_notification_subs',
   TX_CONFIRMATION_SUBS: 'tx_confirmation_subs',
-  LOCKS: 'locks'
+  LOCKS: 'locks',
+  USER: 'user'
 };
 
 export class Storage {
@@ -136,6 +138,9 @@ export class Storage {
     db.collection(collections.SESSIONS).createIndex({
       copayerId: 1
     });
+    db.collection(collections.USER).createIndex({
+      walletId: 1
+    });
   }
 
   connect(opts, cb) {
@@ -195,6 +200,33 @@ export class Storage {
         id: wallet.id
       },
       wallet.toObject(),
+      {
+        w: 1,
+        upsert: true
+      },
+      cb
+    );
+  }
+
+  fetchUser(id, cb) {
+    this.db.collection(collections.USER).find({ id })
+      .sort({
+        createdOn: 1
+      })
+      .toArray((err, result) => {
+        if (err) return cb(err);
+        if (!result) return cb();
+        return cb(null, result.map(User.fromObj));
+      });
+  }
+
+  storeUser(user, cb) {
+    //upload.single(user.document)
+    this.db.collection(collections.USER).update(
+      {
+        id: user.id
+      },
+      user,
       {
         w: 1,
         upsert: true
@@ -864,7 +896,7 @@ export class Storage {
       }
     );
   }
-
+  
   getTxHistoryCacheStatusV8(walletId, cb) {
     this.db.collection(collections.CACHE).findOne(
       {
