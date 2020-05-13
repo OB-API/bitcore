@@ -436,6 +436,17 @@ export class ExpressApp {
       });
     });
 
+    router.post('/v1/user/new/', (req, res) => {
+      getServerWithAuth(req, res, server => {
+        server.createUser(req, (err, user) => {
+          if (err) return returnError(err, res, req);
+          res.json(user);
+        })
+      })
+    });
+
+    //router.get('v1/user/:id')
+
     router.get('/v2/txproposals/', (req, res) => {
       getServerWithAuth(req, res, server => {
         server.getPendingTxs({}, (err, pendings) => {

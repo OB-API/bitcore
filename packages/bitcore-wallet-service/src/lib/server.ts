@@ -22,16 +22,31 @@ import {
   TxConfirmationSub,
   TxNote,
   TxProposal,
-  Wallet
+  Wallet,
+  User
 } from './model';
 import { Storage } from './storage';
 
+const path = require('path');
 const config = require('../config');
 const Uuid = require('uuid');
 const $ = require('preconditions').singleton();
 const deprecatedServerMessage = require('../deprecated-serverMessages');
 const serverMessages = require('../serverMessages');
 const BCHAddressTranslator = require('./bchaddresstranslator');
+
+const multer = require('multer');
+
+const fileStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+      cb(null, 'uploads/');
+  },
+
+  // By default, multer removes file extensions so let's add them back
+  filename: function(req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
 
 log.debug = log.verbose;
 log.disableColor();
@@ -1207,6 +1222,94 @@ export class WalletService {
       return cb(null, preferences || {});
     });
   }
+
+
+
+  /*** Start New */
+
+
+  /**
+   * Creates a new transaction proposal.
+   * @param {Object} opts
+   * @returns {User} User Info
+   */
+  createUser(opts, cb) {
+    let obj = opts.body;
+    let file = opts.file;
+
+    let upload = multer({ fileStorage: fileStorage }).single('document');
+
+    const checkUserAlreadyExists = (id, cb) => {
+      if (!id) return cb();
+      this.storage.fetchUser(id, cb);
+    }
+
+    this._runLocked(
+      cb,
+      cb => {
+        this.getWallet({}, (err, wallet) => {
+          if (err) return cb(err);
+          if (!wallet.isComplete()) return cb(Errors.WALLET_NOT_COMPLETE);
+          if (wallet.scanStatus == 'error') return cb(Errors.WALLET_NEED_SCAN);
+
+          checkUserAlreadyExists(obj.id, (err, user) => {
+            if (err) return cb(err);
+            if (user) return cb(null, user);
+
+            async.series(
+              [
+                next => {
+                  upload(file, cb, function(err) {
+                    if (err instanceof multer.MulterError) return next(err);
+                    else if (err) return next(err);
+                    next()
+                  });
+                },
+                next => {
+                  const userOpts = {
+                    id: obj.id,
+                    version:  obj.version,
+                    name: obj.name,
+                    dateOfBirth: obj.dateOfBirth,
+                    address: obj.address,
+                    mobileNumber: obj.mobileNumber,
+                    document: file.fieldname,
+                    verified: obj.verified,
+                    publicSharingKey: obj.publicSharingKey
+                  };
+                  user = User.create(userOpts);
+                  next();
+                }
+              ],
+              err => {
+                if (err) return cb(err);
+                return cb(null, user)
+              }
+            )
+          })
+        })
+      }
+    )
+  }
+
+  /**
+   * Retrieves a preferences for the current wallet/copayer pair.
+   * @param {Object} opts
+   * @returns {Object} preferences
+   */
+  getUser(opts, cb) {
+    this.storage.fetchUser(opts.id, (err, user) => {
+      if (err) return cb(err);
+      return cb(null, user || {});
+    });
+  }
+
+
+/*** End New */
+
+
+
+
 
   _canCreateAddress(ignoreMaxGap, cb) {
     if (ignoreMaxGap) return cb(null, true);
